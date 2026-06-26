@@ -180,8 +180,12 @@ else
 fi
 
 # permissions
-chown -R abc:abc ${SMA_PATH}
-chmod -R 775 ${SMA_PATH}/*.sh
+# Do NOT recursively chown ${SMA_PATH}: the baked SMA tree + torch/easyocr venv
+# are root:root and world-readable/executable, which abc runs fine. A recursive
+# chown copies up tens of thousands of venv files on overlayfs every start --
+# minutes of disk I/O on NAS storage and gigabytes of layer bloat, blocking
+# svc startup. Only normalize the exec bit on the small *.sh helpers.
+chmod -R 775 ${SMA_PATH}/*.sh 2>/dev/null || true
 
 # update autoprocess
 if [ -w "$SMA_PATH/config/autoProcess.ini" ]; then
