@@ -11,6 +11,15 @@ FROM ghcr.io/linuxserver/ffmpeg
 LABEL maintainer="laurent.laborde@gmail.com"
 LABEL description="Radarr (Debian) + sickbeard_mp4_automator with PGS->SRT subtitle OCR"
 
+# Optional pins supplied by CI's resolve job so the built image matches exactly
+# what the daily check saw. Both fall back to "resolve latest at build time"
+# (the curl in the install step / the branch HEAD clone) when empty.
+ARG RADARR_RELEASE
+ARG SMA_COMMIT
+# Provenance: `docker inspect` shows what's baked in. Empty on unpinned builds.
+LABEL org.sma.app-version="${RADARR_RELEASE}"
+LABEL org.sma.sma-commit="${SMA_COMMIT}"
+
 # SMA_REPO/SMA_BRANCH are baked as ENV (not just ARG) so the init-sma-config
 # runtime auto-update (SMA_UPDATE=true) pulls from the same fork/branch that
 # was cloned at build time. SMA_OCR=true makes update.py enable PGS OCR.
@@ -65,6 +74,10 @@ RUN set -eux; \
 RUN set -eux; \
   git config --global --add safe.directory ${SMA_PATH}; \
   git clone --depth 1 -b "${SMA_BRANCH}" "${SMA_REPO}" ${SMA_PATH}; \
+  if [ -n "${SMA_COMMIT:-}" ]; then \
+    git -C ${SMA_PATH} fetch --depth 1 origin "${SMA_COMMIT}"; \
+    git -C ${SMA_PATH} checkout -q "${SMA_COMMIT}"; \
+  fi; \
   python3 -m venv ${SMA_PATH}/venv; \
   ${SMA_PATH}/venv/bin/pip install --no-cache-dir --upgrade pip; \
   ${SMA_PATH}/venv/bin/pip install --no-cache-dir \
