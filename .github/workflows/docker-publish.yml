@@ -32,9 +32,10 @@ jobs:
           set -euo pipefail
           APP_VERSION=$(curl -sL "https://radarr.servarr.com/v1/update/master/changes?runtime=netcore&os=linux" | jq -r '.[0].version')
           [ -n "$APP_VERSION" ] && [ "$APP_VERSION" != "null" ] || { echo "could not resolve Radarr version"; exit 1; }
-          SMA_SHA=$(git ls-remote "$sma_repo" "$sma_branch" | awk '{print substr($1,1,7)}')
+          SMA_SHA=$(git ls-remote "$sma_repo" "$sma_branch" | awk '{print $1}')
           [ -n "$SMA_SHA" ] || { echo "could not resolve SMA sha"; exit 1; }
-          WANT_TAG="r${APP_VERSION}-s${SMA_SHA}"
+          SMA_SHORT=${SMA_SHA:0:7}
+          WANT_TAG="r${APP_VERSION}-s${SMA_SHORT}"
           {
             echo "app_version=$APP_VERSION"
             echo "sma_sha=$SMA_SHA"
