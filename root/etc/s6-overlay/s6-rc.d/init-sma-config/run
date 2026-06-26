@@ -96,16 +96,16 @@ if [[ -f "${SMA_PATH}/manual.py" ]]; then
     # update from git
     if [[ "${SMA_UPDATE}" == "true" ]]
     then
-        echo "${echoprefix} Updating SMA from github master"
-        git -C ${SMA_PATH} pull origin master --quiet
+        echo "${echoprefix} Updating SMA from github ${SMA_BRANCH:-feature/pgs-ocr-subtitles}"
+        git -C ${SMA_PATH} pull origin "${SMA_BRANCH:-feature/pgs-ocr-subtitles}" --quiet
     fi
 else
     # initial download
-    echo "${echoprefix} Init SMA from github master"
+    echo "${echoprefix} Init SMA from github ${SMA_BRANCH:-feature/pgs-ocr-subtitles}"
     git config --global --add safe.directory ${SMA_PATH}
     git -C ${SMA_PATH} init --quiet
-    git -C ${SMA_PATH} remote add origin https://github.com/mdhiggins/sickbeard_mp4_automator.git
-    git -C ${SMA_PATH} pull origin master --quiet
+    git -C ${SMA_PATH} remote add origin "${SMA_REPO:-https://github.com/lolobored/sickbeard_mp4_automator.git}"
+    git -C ${SMA_PATH} pull origin "${SMA_BRANCH:-feature/pgs-ocr-subtitles}" --quiet
 fi
 
 # check virtual python environment
@@ -116,7 +116,8 @@ else
     python3 -m venv ${SMA_PATH}/venv
     ${SMA_PATH}/venv/bin/python3 -m pip install -q --upgrade pip --no-cache-dir > /dev/null
     ${SMA_PATH}/venv/bin/pip install -q --no-cache-dir \
-        -r ${SMA_PATH}/setup/requirements.txt > /dev/null
+        -r ${SMA_PATH}/setup/requirements.txt \
+        -r ${SMA_PATH}/setup/requirements-ocr.txt > /dev/null
     if [[ -z "${SMA_RS}" ]]; then
     echo "${echoprefix} Installing additional deluge/qbittorrent requirements"
     ${SMA_PATH}/venv/bin/pip install -q --no-cache-dir \

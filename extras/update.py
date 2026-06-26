@@ -56,6 +56,14 @@ def main():
         else:
             safeConfigParser.set(section, "host", "127.0.0.1")
 
+    # Enable PGS->SRT subtitle OCR when the image requests it (SMA_OCR=true).
+    # Done here (runs every start) so it applies even to a pre-existing,
+    # volume-persisted autoProcess.ini.
+    if os.environ.get("SMA_OCR", "").strip().lower() in ["true", "1", "yes", "y", "t"]:
+        if not safeConfigParser.has_section("Subtitle.OCR"):
+            safeConfigParser.add_section("Subtitle.OCR")
+        safeConfigParser.set("Subtitle.OCR", "ocr-image-subs", "True")
+
     fp = open(autoProcess, "w")
     safeConfigParser.write(fp)
     fp.close()
