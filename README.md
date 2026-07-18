@@ -12,9 +12,6 @@ Docker container for Radarr that includes all FFMPEG and python requirements to 
 
 ## Usage
 
-### Recent update
-As of 3/9/2020 the containers were overhauled and the location of the script was changed from `/usr/local/bin/sma/sickbeard_mp4_automator` to `/usr/local/sma`. The autoProcess mount point has been modified as well to be more docker friendly in a `/usr/local/sma/config` directory. Please review and update accordingly.
-
 ### docker-compose
 ~~~yml
 services:
@@ -85,7 +82,7 @@ Located at `/usr/local/sma/config/sma.log` inside the container and your mounted
 |SMA_UPDATE|Default `false`. Set `true` to pull git update of SMA on restart|
 |SMA_FFMPEG_URL|Defaults to latest static build from https://johnvansickle.com but can override by changing this var|
 |SMA_STRIP_COMPONENTS|Default `1`. Number of components to strip from your tar.xz file when extracting so that FFmpeg binaries land in `/usr/local/bin`|
-|SMA_HWACCEL|Default `false`. Set `true` to pull additional packages used for hardare acceleration (will require custom FFmpeg binaries)|
+|SMA_HWACCEL|Default `false`. Set `true` to pull additional packages used for hardare acceleration (may require custom FFmpeg binaries depending on hardware)|
 |SMA_USE_REPO|Default `false`. Set `true` to download FFMPEG binaries for default repository (will likely be older versions)|
 
 ## Special Considerations
