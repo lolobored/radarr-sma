@@ -2,7 +2,8 @@ name: Docker Publish
 
 on:
   schedule:
-    - cron: '0 21 * * *'        # daily 21:00 UTC = 05:00 Asia/Singapore
+    - cron: '0 21 * * *'        # daily 21:00 UTC = 05:00 Asia/Singapore (builds only if tag missing)
+    - cron: '30 21 * * 0'       # weekly Sun 21:30 UTC: forced rebuild (base image / OS updates)
   push:
     branches: [ 'master' ]
   workflow_dispatch:
@@ -53,11 +54,16 @@ jobs:
           DOCKERHUB_IMAGE: ${{ secrets.DOCKER_USERNAME }}/${{ env.project }}
           WANT_TAG: ${{ steps.versions.outputs.want_tag }}
           FORCE: ${{ github.event.inputs.force }}
+          SCHEDULE: ${{ github.event.schedule }}
         run: |
           set -euo pipefail
           case "${{ github.event_name }}" in
             push)
               echo "push event -> force build"; echo "build=true" >> "$GITHUB_OUTPUT"; exit 0 ;;
+            schedule)
+              if [ "$SCHEDULE" = "30 21 * * 0" ]; then
+                echo "weekly schedule -> force rebuild"; echo "build=true" >> "$GITHUB_OUTPUT"; exit 0
+              fi ;;
             workflow_dispatch)
               if [ "$FORCE" = "true" ]; then
                 echo "manual force -> build"; echo "build=true" >> "$GITHUB_OUTPUT"; exit 0
